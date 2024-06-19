@@ -36,7 +36,7 @@ services:
     network_mode: host
     environment: 
       # 默认3000
-      - PORT=5000
+      - PORT=3000
       - TZ=Asia/Shanghai
       # 默认内网
       - OPTIONS=public
