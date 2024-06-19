@@ -29,7 +29,7 @@ RUN cd /home && \
 
 # 编译项目
 RUN cd /home/snapdrop && \
-    npm config set registry https://registry.npm.taobao.org && \
+#    npm config set registry https://registry.npm.taobao.org && \
     # npm install -g pm2 && \
 	npm install
 
