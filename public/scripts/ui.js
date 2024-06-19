@@ -13,13 +13,12 @@ Events.on('display-name', e => {
     $displayName.title = me.deviceName;
 });
 
-
 class PeersUI {
 
     constructor() {
-        Events.on('peer-opened', e => this._onPeerJoined(e.detail));
-        Events.on('peer-closed', e => this._onPeerLeft(e.detail));
+        Events.on('peer-joined', e => this._onPeerJoined(e.detail));
         Events.on('peer-left', e => this._onPeerLeft(e.detail));
+        Events.on('peers', e => this._onPeers(e.detail));
         Events.on('file-progress', e => this._onFileProgress(e.detail));
         Events.on('paste', e => this._onPaste(e));
     }
@@ -28,7 +27,12 @@ class PeersUI {
         if ($(peer.id)) return; // peer already exists
         const peerUI = new PeerUI(peer);
         $$('x-peers').appendChild(peerUI.$el);
-        //setTimeout(e => window.animateBackground(false), 1750); // Stop animation
+        setTimeout(e => window.animateBackground(false), 1750); // Stop animation
+    }
+
+    _onPeers(peers) {
+        this._clearPeers();
+        peers.forEach(peer => this._onPeerJoined(peer));
     }
 
     _onPeerLeft(peerId) {
@@ -65,7 +69,6 @@ class PeersUI {
         }
     }
 }
-
 
 class PeerUI {
 
@@ -202,6 +205,7 @@ class PeerUI {
     }
 }
 
+
 class Dialog {
     constructor(id) {
         this.$el = $(id);
@@ -220,7 +224,6 @@ class Dialog {
         window.blur();
     }
 }
-
 
 class ReceiveDialog extends Dialog {
 
@@ -259,11 +262,11 @@ class ReceiveDialog extends Dialog {
         $a.href = url;
         $a.download = file.name;
 
-        if (this._autoDownload()) {
+        if(this._autoDownload()){
             $a.click()
             return
         }
-        if (file.mime.split('/')[0] === 'image') {
+        if(file.mime.split('/')[0] === 'image'){
             console.log('the file is image');
             this.$el.querySelector('.preview').style.visibility = 'inherit';
             this.$el.querySelector("#img-preview").src = url;
@@ -300,7 +303,8 @@ class ReceiveDialog extends Dialog {
         this._dequeueFile();
     }
 
-    _autoDownload() {
+
+    _autoDownload(){
         return !this.$el.querySelector('#autoDownload').checked
     }
 }
@@ -335,7 +339,7 @@ class JoinRoomDialog extends Dialog {
 class SendTextDialog extends Dialog {
     constructor() {
         super('sendTextDialog');
-        Events.on('text-recipient', e => this._onRecipient(e.detail));
+        Events.on('text-recipient', e => this._onRecipient(e.detail))
         this.$text = this.$el.querySelector('#textInput');
         const button = this.$el.querySelector('form');
         button.addEventListener('submit', e => this._send(e));
@@ -345,11 +349,14 @@ class SendTextDialog extends Dialog {
         this._recipient = recipient;
         this._handleShareTargetText();
         this.show();
+
         const range = document.createRange();
         const sel = window.getSelection();
+
         range.selectNodeContents(this.$text);
         sel.removeAllRanges();
         sel.addRange(range);
+
     }
 
     _handleShareTargetText() {
@@ -517,7 +524,6 @@ class NetworkStatusUI {
     }
 }
 
-
 class WebShareTargetUI {
     constructor() {
         const parsedUrl = new URL(window.location);
@@ -528,7 +534,7 @@ class WebShareTargetUI {
         let shareTargetText = title ? title : '';
         shareTargetText += text ? shareTargetText ? ' ' + text : text : '';
 
-        if (url) shareTargetText = url; // We share only the Link - no text. Because link-only text becomes clickable.
+        if(url) shareTargetText = url; // We share only the Link - no text. Because link-only text becomes clickable.
 
         if (!shareTargetText) return;
         window.shareTargetText = shareTargetText;
@@ -557,6 +563,7 @@ class Snapdrop {
 }
 
 const snapdrop = new Snapdrop();
+
 
 
 if ('serviceWorker' in navigator) {
@@ -629,13 +636,13 @@ Events.on('load', () => {
 
     function animate() {
         if (loading || step % dw < dw - 5) {
-            requestAnimationFrame(function () {
+            requestAnimationFrame(function() {
                 drawCircles();
                 animate();
             });
         }
     }
-    window.animateBackground = function (l) {
+    window.animateBackground = function(l) {
         loading = l;
         animate();
     };
