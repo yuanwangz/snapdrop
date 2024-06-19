@@ -21,7 +21,7 @@ Enter a blank room name to return to LAN mode.
 docker：
 
 ```bash
-docker run -itd --name=snapdrop --net=host --restart=unless-stopped -e PORT=5000 -e OPTIONS=public nn200433/snapdrop:latest
+docker run -itd -p 5000:5000 --name=snapdrop --net=bridge --restart=unless-stopped -e PORT=5000 -e OPTIONS=public nn200433/snapdrop:latest
 ```
 
 docker-compose：
@@ -33,7 +33,7 @@ services:
     image: nn200433/snapdrop:latest
     container_name: snapdrop
     restart: unless-stopped
-    network_mode: host
+    network_mode: bridge
     environment: 
       # 默认3000
       - PORT=3000
